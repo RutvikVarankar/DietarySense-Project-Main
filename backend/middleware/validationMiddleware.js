@@ -249,8 +249,21 @@ exports.validateMealPlan = [
 
   body("preferences.dietaryPreference")
     .optional()
-    .isIn(["vegetarian", "non-vegetarian", "vegan", "gluten-free"])
+    .custom((value) => {
+      if (!value || value === "") return true;
+      return ["vegetarian", "non-vegetarian", "vegan", "gluten-free"].includes(value);
+    })
     .withMessage("Invalid dietary preference"),
+
+  body("preferences.maxPrepTime")
+    .optional()
+    .isInt({ min: 1, max: 180 })
+    .withMessage("Max prep time must be between 1-180 minutes"),
+
+  body("preferences.maxCookTime")
+    .optional()
+    .isInt({ min: 1, max: 180 })
+    .withMessage("Max cook time must be between 1-180 minutes"),
 
   body("preferences.excludedIngredients")
     .optional()

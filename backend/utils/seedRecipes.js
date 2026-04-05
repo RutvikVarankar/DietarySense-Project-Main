@@ -5,6 +5,102 @@ require('dotenv').config();
 
 const sampleRecipes = [
   {
+    title: "Greek Yogurt Parfait",
+    description: "Protein-rich layered yogurt parfait with granola and berries",
+    ingredients: [
+      {
+        name: "Greek Yogurt",
+        quantity: 150,
+        unit: "g",
+        nutrition: { calories: 100, protein: 15, carbs: 6, fats: 0 }
+      },
+      {
+        name: "Granola",
+        quantity: 30,
+        unit: "g",
+        nutrition: { calories: 140, protein: 4, carbs: 20, fats: 5 }
+      },
+      {
+        name: "Mixed Berries",
+        quantity: 100,
+        unit: "g",
+        nutrition: { calories: 57, protein: 1, carbs: 14, fats: 0 }
+      },
+      {
+        name: "Honey",
+        quantity: 10,
+        unit: "g",
+        nutrition: { calories: 30, protein: 0, carbs: 8, fats: 0 }
+      }
+    ],
+    instructions: [
+      { step: 1, text: "Layer yogurt, granola, and berries in a glass" },
+      { step: 2, text: "Drizzle honey on top" },
+      { step: 3, text: "Serve immediately" }
+    ],
+    nutrition: {
+      calories: 327,
+      protein: 20,
+      carbs: 48,
+      fats: 5,
+      fiber: 4
+    },
+    dietaryTags: ["high-protein", "vegetarian"],
+    prepTime: 5,
+    cookTime: 0,
+    servings: 1,
+    difficulty: "easy",
+    cuisine: "International"
+  },
+  {
+    title: "Mixed Nuts Trail Mix",
+    description: "Healthy snack mix with nuts and dried fruits",
+    ingredients: [
+      {
+        name: "Almonds",
+        quantity: 30,
+        unit: "g",
+        nutrition: { calories: 174, protein: 6, carbs: 6, fats: 15 }
+      },
+      {
+        name: "Walnuts",
+        quantity: 20,
+        unit: "g",
+        nutrition: { calories: 131, protein: 3, carbs: 3, fats: 13 }
+      },
+      {
+        name: "Dried Cranberries",
+        quantity: 20,
+        unit: "g",
+        nutrition: { calories: 71, protein: 0, carbs: 18, fats: 0 }
+      },
+      {
+        name: "Pumpkin Seeds",
+        quantity: 20,
+        unit: "g",
+        nutrition: { calories: 112, protein: 6, carbs: 11, fats: 5 }
+      }
+    ],
+    instructions: [
+      { step: 1, text: "Mix all ingredients in a bowl" },
+      { step: 2, text: "Portion into snack bags" },
+      { step: 3, text: "Store in airtight container" }
+    ],
+    nutrition: {
+      calories: 488,
+      protein: 15,
+      carbs: 38,
+      fats: 33,
+      fiber: 6
+    },
+    dietaryTags: ["vegan", "gluten-free", "high-protein"],
+    prepTime: 5,
+    cookTime: 0,
+    servings: 2,
+    difficulty: "easy",
+    cuisine: "International"
+  },
+  {
     title: "Oatmeal with Fresh Fruits",
     description: "A healthy and filling breakfast with oats and seasonal fruits",
     ingredients: [

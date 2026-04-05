@@ -328,29 +328,50 @@ const RecipeCard = ({ recipe }) => {
           </Row>
         </div>
 
+        {/* YouTube Video Section */}
+        {recipe.videoLink && (
+          <div className="mb-3">
+            <a
+              href={recipe.videoLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline-danger w-100 text-start"
+              style={{ textDecoration: 'none' }}
+            >
+              <i className="fab fa-youtube me-2"></i>
+              Watch on YouTube
+            </a>
+          </div>
+        )}
+
         {/* Rating and Actions */}
         <div className="d-flex justify-content-between align-items-center mt-auto">
           <div>
             {recipe.averageRating > 0 ? (
               <div className="d-flex align-items-center">
                 <div className="me-1">{renderStars(recipe.averageRating)}</div>
-                <small className="text-muted">({recipe.ratingCount})</small>
+                <small className="text-muted">
+                  ({recipe.ratingCount} {recipe.ratingCount === 1 ? 'review' : 'reviews'})
+                </small>
               </div>
             ) : (
               <small className="text-muted">No ratings yet</small>
             )}
+
           </div>
 
-          <Button
-            variant="outline-primary"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCardClick();
-            }}
-          >
-            View
-          </Button>
+          <div className="d-flex gap-1">
+            <Button
+              variant="outline-primary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCardClick();
+              }}
+            >
+              View
+            </Button>
+          </div>
         </div>
       </Card.Body>
 

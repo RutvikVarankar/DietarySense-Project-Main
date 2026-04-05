@@ -1,6 +1,6 @@
 const Recipe = require("../models/Recipe");
 const { cloudinaryUtils } = require("../config/cloudinary");
-const { validationResult } = require("express-validator");
+const { validationResult } = require("express-validator"); // Recipe already imported at top
 
 // @desc    Get all recipes with filtering and pagination
 // @route   GET /api/recipes
@@ -115,6 +115,42 @@ exports.getRecipe = async (req, res, next) => {
 // @access  Private
 exports.createRecipe = async (req, res, next) => {
   try {
+    // Parse JSON strings from FormData + convert numbers
+    if (req.body.ingredients) req.body.ingredients = JSON.parse(req.body.ingredients);
+    if (req.body.instructions) req.body.instructions = JSON.parse(req.body.instructions);
+    if (req.body.nutrition) {
+      req.body.nutrition = JSON.parse(req.body.nutrition);
+      // Convert nutrition to numbers
+      Object.keys(req.body.nutrition).forEach(key => {
+        req.body.nutrition[key] = parseFloat(req.body.nutrition[key]) || 0;
+      });
+    }
+    if (req.body.dietaryTags) req.body.dietaryTags = JSON.parse(req.body.dietaryTags);
+    if (req.body.tags) req.body.tags = JSON.parse(req.body.tags);
+
+    // Convert numeric FormData fields (strings → numbers)
+    const numericFields = ['prepTime', 'cookTime', 'servings'];
+    numericFields.forEach(field => {
+      req.body[field] = parseInt(req.body[field]) || 1; // servings min=1
+    });
+
+    // Ensure required fields have defaults
+    req.body.title = req.body.title || 'Untitled Recipe';
+    req.body.difficulty = req.body.difficulty || 'easy';
+
+    // Ensure nutrition has required fields
+    if (!req.body.nutrition || typeof req.body.nutrition !== 'object') {
+      req.body.nutrition = {};
+    }
+    const requiredNutrition = ['calories', 'protein', 'carbs', 'fats'];
+    requiredNutrition.forEach(key => {
+      if (req.body.nutrition[key] === undefined || req.body.nutrition[key] === '') {
+        req.body.nutrition[key] = 0;
+      } else {
+        req.body.nutrition[key] = parseFloat(req.body.nutrition[key]) || 0;
+      }
+    });
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log("Validation errors:", errors.array());
@@ -127,6 +163,8 @@ exports.createRecipe = async (req, res, next) => {
 
     // Add createdBy field
     req.body.createdBy = req.user.id;
+    req.body.isApproved = req.body.isApproved === "true" || req.user.role === "admin";
+
 
     // Calculate nutrition if not provided
     if (req.body.ingredients && !req.body.nutrition) {
@@ -179,10 +217,11 @@ exports.updateRecipe = async (req, res, next) => {
       });
     }
 
-    // Recalculate nutrition if ingredients are updated
-    if (req.body.ingredients) {
-      const nutrition = calculateNutritionFromIngredients(req.body.ingredients);
-      req.body.nutrition = nutrition;
+    // Preserve existing nutrition values if not explicitly changed
+    if (req.body.nutrition) {
+      // Only update specific nutrition fields if provided
+      recipe.nutrition = { ...recipe.nutrition, ...req.body.nutrition };
+      delete req.body.nutrition; // Remove from req.body to avoid overwriting
     }
 
     recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
@@ -319,6 +358,43 @@ const calculateNutritionFromIngredients = (ingredients) => {
   });
 
   return nutrition;
+};
+
+// @desc    Add/Update rating and review for recipe
+// @route   POST /api/recipes/:id/ratings  
+// @access  Private
+exports.addRating = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
+
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) {
+      return res.status(404).json({
+        success: false,
+        message: "Recipe not found",
+      });
+    }
+
+    const { rating, comment } = req.body;
+    await recipe.addRating(req.user.id, rating, comment || "");
+
+
+    const updatedRecipe = await Recipe.findById(recipe._id);
+    res.status(201).json({
+      success: true,
+      message: "Rating submitted successfully",
+      data: updatedRecipe,
+    });
+
+  } catch (error) {
+    next(error);
+  }
 };
 
 // @desc    Generate PDF for recipe

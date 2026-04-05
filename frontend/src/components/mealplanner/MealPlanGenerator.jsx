@@ -204,7 +204,7 @@ const MealPlanGenerator = () => {
                           >
                             {preferences.dietaryPreference
                               ? preferences.dietaryPreference.charAt(0).toUpperCase() +
-                                preferences.dietaryPreference.slice(1)
+                              preferences.dietaryPreference.slice(1)
                               : "No Preference"}
                           </Badge>
                           <small className="text-muted">

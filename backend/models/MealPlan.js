@@ -29,7 +29,18 @@ const mealPlanSchema = mongoose.Schema(
     preferences: {
       dietaryPreference: {
         type: String,
-        enum: ["vegetarian", "non-vegetarian", "vegan", "gluten-free", "none"],
+        enum: ["", "vegetarian", "non-vegetarian", "vegan", "gluten-free", "none"],
+        default: "",
+      },
+      maxPrepTime: {
+        type: Number,
+        min: [0, "Prep time cannot be negative"],
+        default: 60,
+      },
+      maxCookTime: {
+        type: Number,
+        min: [0, "Cook time cannot be negative"],
+        default: 60,
       },
       excludedIngredients: [
         {

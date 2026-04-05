@@ -47,10 +47,6 @@ const RecipeDetail = () => {
     }
   };
 
-
-
-
-
   const handlePrintRecipe = async () => {
     try {
       const response = await fetch(`http://localhost:5000/api/recipes/${id}/pdf`);
@@ -98,7 +94,7 @@ const RecipeDetail = () => {
         alert("Rating submitted successfully!");
         setRating(0);
         setComment("");
-        fetchRecipe(); // Refresh recipe data
+        fetchRecipe();
       } else {
         throw new Error("Failed to submit rating");
       }
@@ -191,8 +187,9 @@ const RecipeDetail = () => {
       </Button>
 
       <Row>
-        {/* Recipe Image and Basic Info */}
+        {/* Left Column - Main Content */}
         <Col lg={8}>
+          {/* Recipe Image and Basic Info */}
           <Card className="border-0 shadow-sm mb-4">
             <Row className="g-0">
               <Col md={6}>
@@ -202,7 +199,7 @@ const RecipeDetail = () => {
                     alt={recipe.title}
                     className="img-fluid rounded-start"
                     style={{
-                      height: "300px",
+                      height: "350px",
                       width: "100%",
                       objectFit: "cover",
                     }}
@@ -294,8 +291,6 @@ const RecipeDetail = () => {
                       </Row>
                     </div>
                   </div>
-
-
                 </Card.Body>
               </Col>
             </Row>
@@ -305,6 +300,8 @@ const RecipeDetail = () => {
           <Card className="border-0 shadow-sm">
             <Card.Body>
               <Tabs defaultActiveKey="instructions" className="mb-3">
+
+                {/* Instructions */}
                 <Tab eventKey="instructions" title="Instructions">
                   <ol className="list-group list-group-numbered">
                     {recipe.instructions?.map((instruction, index) => (
@@ -312,7 +309,7 @@ const RecipeDetail = () => {
                         {instruction.text.replace(/0$/, '')}
                         {instruction.duration && (
                           <Badge bg="light" text="dark" className="ms-2">
-                            {instruction.duration}m
+                            {instruction.duration}
                           </Badge>
                         )}
                       </li>
@@ -320,6 +317,7 @@ const RecipeDetail = () => {
                   </ol>
                 </Tab>
 
+                {/* Ingredients */}
                 <Tab eventKey="ingredients" title="Ingredients">
                   <ListGroup variant="flush">
                     {recipe.ingredients?.map((ingredient, index) => (
@@ -330,21 +328,20 @@ const RecipeDetail = () => {
                         <div>
                           <span className="fw-medium">{ingredient.name}</span>
                           {ingredient.category && (
-                            <Badge bg="outline-secondary" className="ms-2">
+                            <Badge bg="secondary" className="ms-2">
                               {ingredient.category}
                             </Badge>
                           )}
                         </div>
-                        <div>
-                          <span className="fw-bold">
-                            {ingredient.quantity} {ingredient.unit}
-                          </span>
-                        </div>
+                        <span className="fw-bold">
+                          {ingredient.quantity} {ingredient.unit}
+                        </span>
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
                 </Tab>
 
+                {/* Nutrition */}
                 <Tab eventKey="nutrition" title="Detailed Nutrition">
                   <Row>
                     <Col md={6}>
@@ -352,9 +349,7 @@ const RecipeDetail = () => {
                       <ListGroup variant="flush">
                         <ListGroup.Item className="d-flex justify-content-between border-0 px-0">
                           <span>Calories</span>
-                          <span className="fw-bold">
-                            {recipe.nutrition.calories}
-                          </span>
+                          <span className="fw-bold">{recipe.nutrition.calories}</span>
                         </ListGroup.Item>
                         <ListGroup.Item className="d-flex justify-content-between border-0 px-0">
                           <span>Protein</span>
@@ -376,6 +371,7 @@ const RecipeDetail = () => {
                         </ListGroup.Item>
                       </ListGroup>
                     </Col>
+
                     <Col md={6}>
                       <h6>Additional Info</h6>
                       <ListGroup variant="flush">
@@ -401,12 +397,98 @@ const RecipeDetail = () => {
                     </Col>
                   </Row>
                 </Tab>
+
               </Tabs>
             </Card.Body>
           </Card>
+
+          {/* Separate Section */}
+          <Row className="mt-4">
+
+            {/* Quick Actions */}
+            <Col md={6}>
+              <Card
+                className="shadow-sm border-0 h-100"
+                style={{
+                  backgroundColor: "#ffffff",
+                  borderRadius: "12px",
+                  transition: "0.3s ease"
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#eeeeee")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f5f5f5")
+                }
+              >
+                <Card.Body>
+                  <Card.Title
+                    className="mb-3 fw-semibold text-dark"
+                    style={{ fontSize: "16px" }}
+                  >
+                    ⚡ Quick Actions
+                  </Card.Title>
+
+                  <div className="d-grid">
+                    <Button
+                      variant="outline-dark"
+                      className="fw-semibold"
+                      style={{ borderRadius: "8px" }}
+                      onClick={handlePrintRecipe}
+                    >
+                      <i className="fas fa-print me-2"></i>
+                      Print Recipe
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+            {/* Cook's Tips */}
+            <Col md={6}>
+              <Card
+                className="shadow-sm border-0 h-100"
+                style={{
+                  backgroundColor: "ffffff",
+                  borderRadius: "12px",
+                  transition: "all 0.3s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#eeeeee";
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f5f5f5";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                <Card.Body>
+                  <Card.Title
+                    className="mb-3 fw-semibold text-dark"
+                    style={{ fontSize: "16px" }}
+                  >
+                    👨‍🍳 Cook's Tips
+                  </Card.Title>
+
+                  <div className="small text-muted">
+                    <p className="mb-2">
+                      • Make sure all ingredients are at room temperature
+                    </p>
+                    <p className="mb-2">
+                      • Don't overcook vegetables to preserve nutrients
+                    </p>
+                    <p className="mb-0">
+                      • Adjust seasoning to your taste
+                    </p>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+
+          </Row>
         </Col>
 
-        {/* Sidebar */}
+        {/* Right Column - Sidebar */}
         <Col lg={4}>
           {/* Rating and Reviews */}
           <Card className="border-0 shadow-sm mb-4">
@@ -423,7 +505,7 @@ const RecipeDetail = () => {
                     {renderStars(recipe.averageRating)}
                   </div>
                   <small className="text-muted">
-                    Based on {recipe.ratingCount} reviews
+                    Based on {recipe.ratingCount || 0} {recipe.ratingCount === 1 ? 'review' : 'reviews'}
                   </small>
                 </div>
               ) : (
@@ -436,7 +518,7 @@ const RecipeDetail = () => {
               <Form onSubmit={handleSubmitRating}>
                 <Form.Group className="mb-3">
                   <Form.Label>Your Rating</Form.Label>
-                  <div className="text-center">
+                  <div>
                     {renderStars(rating, true, setRating)}
                   </div>
                 </Form.Group>
@@ -464,38 +546,36 @@ const RecipeDetail = () => {
             </Card.Body>
           </Card>
 
-          {/* Quick Actions */}
-          <Card className="border-0 shadow-sm">
-            <Card.Header className="bg-white">
-              <h6 className="mb-0">Quick Actions</h6>
-            </Card.Header>
-            <Card.Body>
-              <div className="d-grid gap-2">
-                <Button variant="outline-primary" onClick={handlePrintRecipe}>
-                  <i className="fas fa-print me-2"></i>
-                  Print Recipe
-                </Button>
-              </div>
-            </Card.Body>
-          </Card>
-
-          {/* Cook's Notes */}
-          <Card className="border-0 shadow-sm mt-4 bg-light">
-            <Card.Body>
-              <h6 className="mb-2">👨‍🍳 Cook's Tips</h6>
-              <p className="small text-muted mb-0">
-                • Make sure all ingredients are at room temperature for best
-                results
-                <br />
-                • Don't overcook the vegetables to preserve nutrients
-                <br />• Adjust seasoning according to your taste preferences
-              </p>
-            </Card.Body>
-          </Card>
+          {/* Video Tutorial */}
+          {recipe.videoLink && (
+            <Card className="border-0 shadow-sm mb-4">
+              <Card.Header className="bg-danger text-white">
+                <h6 className="mb-0">
+                  <i className="fab fa-youtube me-2"></i>
+                  Video Tutorial
+                </h6>
+              </Card.Header>
+              <Card.Body className="p-0">
+                <div className="ratio ratio-16x9">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYouTubeId(recipe.videoLink)}`}
+                    title="Recipe Video Tutorial"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </Card.Body>
+            </Card>
+          )}
         </Col>
       </Row>
     </Container>
   );
+};
+
+const getYouTubeId = (url) => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
 };
 
 export default RecipeDetail;
