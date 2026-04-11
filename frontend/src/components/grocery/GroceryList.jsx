@@ -25,8 +25,6 @@ const GroceryList = () => {
     category: "other",
   });
   const [showExport, setShowExport] = useState(false);
-  const [selectedMealPlan, setSelectedMealPlan] = useState("");
-  const [mealPlans, setMealPlans] = useState([]);
 
   // Categories for organization
   const categories = [
@@ -70,7 +68,6 @@ const GroceryList = () => {
 
   useEffect(() => {
     fetchGroceryList();
-    fetchMealPlans();
   }, []);
 
   const fetchGroceryList = async () => {
@@ -95,34 +92,7 @@ const GroceryList = () => {
     }
   };
 
-  const fetchMealPlans = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/mealplans", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setMealPlans(data.data);
-      } else {
-        // Keep mock data if API fails
-        setMealPlans([
-          { _id: "1", title: "7-Day Weight Loss Plan" },
-          { _id: "2", title: "Vegetarian Meal Plan" },
-          { _id: "3", title: "High Protein Week" },
-        ]);
-      }
-    } catch (err) {
-      // Keep mock data if API fails
-      setMealPlans([
-        { _id: "1", title: "7-Day Weight Loss Plan" },
-        { _id: "2", title: "Vegetarian Meal Plan" },
-        { _id: "3", title: "High Protein Week" },
-      ]);
-    }
-  };
 
   const handleAddItem = async (e) => {
     e.preventDefault();
@@ -202,36 +172,7 @@ const GroceryList = () => {
     );
   };
 
-  const generateFromMealPlan = async () => {
-    if (!selectedMealPlan) {
-      setError("Please select a meal plan first");
-      return;
-    }
 
-    setLoading(true);
-    try {
-      // API call to generate grocery list from meal plan
-      const response = await fetch(
-        `http://localhost:5000/api/mealplans/${selectedMealPlan}/grocery-list`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setGroceryItems(data.data);
-      } else {
-        throw new Error("Failed to generate grocery list");
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const clearList = async () => {
     try {
@@ -455,9 +396,8 @@ const GroceryList = () => {
                         {categoryItems.map((item) => (
                           <ListGroup.Item
                             key={item._id}
-                            className={`d-flex justify-content-between align-items-center border-0 px-3 py-2 ${
-                              item.purchased ? "bg-light text-muted" : ""
-                            }`}
+                            className={`d-flex justify-content-between align-items-center border-0 px-3 py-2 ${item.purchased ? "bg-light text-muted" : ""
+                              }`}
                           >
                             <div className="d-flex align-items-center">
                               <Form.Check
@@ -554,37 +494,6 @@ const GroceryList = () => {
 
         {/* Sidebar */}
         <Col lg={4}>
-          {/* Generate from Meal Plan */}
-          <Card className="border-0 shadow-sm mb-4">
-            <Card.Header className="bg-white">
-              <h6 className="mb-0">Generate from Meal Plan</h6>
-            </Card.Header>
-            <Card.Body>
-              <Form.Group className="mb-3">
-                <Form.Label>Select Meal Plan</Form.Label>
-                <Form.Select
-                  value={selectedMealPlan}
-                  onChange={(e) => setSelectedMealPlan(e.target.value)}
-                >
-                  <option value="">Choose a meal plan...</option>
-                  {mealPlans.map((plan) => (
-                    <option key={plan._id} value={plan._id}>
-                      {plan.title}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-              <Button
-                variant="success"
-                className="w-100"
-                onClick={generateFromMealPlan}
-                disabled={!selectedMealPlan || loading}
-              >
-                {loading ? "Generating..." : "Generate List"}
-              </Button>
-            </Card.Body>
-          </Card>
-
           {/* Quick Actions */}
           <Card className="border-0 shadow-sm mb-4">
             <Card.Header className="bg-white">
