@@ -31,6 +31,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const spoonacularRoutes = require('./routes/spoonacularRoutes');
 const nutritionRoutes = require('./routes/nutritionRoutes');
 const groceryRoutes = require('./routes/groceryRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 // Initialize express app
 const app = express();
@@ -230,6 +231,7 @@ app.use("/api/admin", adminRoutes);
 app.use('/api/spoonacular', spoonacularRoutes);
 app.use('/api/nutrition', nutritionRoutes);
 app.use('/api/grocery', groceryRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Handle undefined routes
 app.all("*", notFound);

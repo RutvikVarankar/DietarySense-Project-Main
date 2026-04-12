@@ -11,28 +11,28 @@ const MealCard = ({ meal, mealType, dayIndex, mealIndex }) => {
   const recipe = (meal && meal.recipe && typeof meal.recipe === 'object' && meal.recipe.nutrition)
     ? meal.recipe
     : {
-        _id: meal?.recipe || "1",
-        title: "Sample Recipe",
-        description: "A delicious and nutritious meal",
-        prepTime: 15,
-        cookTime: 30,
-        difficulty: "medium",
-        nutrition: {
-          calories: 450,
-          protein: 25,
-          carbs: 45,
-          fats: 15,
-        },
-        dietaryTags: ["healthy", "balanced"],
-        image: null,
-      };
+      _id: meal?.recipe || "1",
+      title: "Sample Recipe",
+      description: "A delicious and nutritious meal",
+      prepTime: 15,
+      cookTime: 30,
+      difficulty: "medium",
+      nutrition: {
+        calories: 450,
+        protein: 25,
+        carbs: 45,
+        fats: 15,
+      },
+      dietaryTags: ["healthy", "balanced"],
+      image: null,
+    };
 
   const getMealTypeIcon = (type) => {
     const icons = {
       breakfast: "☕",
       lunch: "🥗",
       dinner: "🍽️",
-      snacks: "🍎",
+
     };
     return icons[type] || "🍴";
   };

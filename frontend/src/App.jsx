@@ -27,6 +27,9 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import UserManagement from "./components/admin/UserManagement";
 import RecipeManagement from "./components/admin/RecipeManagement";
 
+// Chatbot
+import Chatbot from "./components/common/Chatbot";
+
 // Styles
 import "./styles/custom.scss";
 
@@ -200,6 +203,8 @@ function AppContent() {
             }
           />
         </Routes>
+
+        {user && <Chatbot />}
       </main>
 
       {user && <Footer />}

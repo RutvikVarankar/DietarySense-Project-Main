@@ -13,6 +13,7 @@ import {
   InputGroup,
 } from "react-bootstrap";
 import ExportOptions from "./ExportOptions";
+import ShareOptions from "./ShareOptions";
 
 const GroceryList = () => {
   const [groceryItems, setGroceryItems] = useState([]);
@@ -25,6 +26,7 @@ const GroceryList = () => {
     category: "other",
   });
   const [showExport, setShowExport] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   // Categories for organization
   const categories = [
@@ -221,6 +223,15 @@ const GroceryList = () => {
       <ExportOptions
         groceryItems={groceryItems}
         onBack={() => setShowExport(false)}
+      />
+    );
+  }
+
+  if (showShare) {
+    return (
+      <ShareOptions
+        groceryItems={groceryItems}
+        onBack={() => setShowShare(false)}
       />
     );
   }
@@ -517,7 +528,11 @@ const GroceryList = () => {
                   <i className="fas fa-trash me-2"></i>
                   Clear All Items
                 </Button>
-                <Button variant="outline-info">
+                <Button
+                  variant="outline-info"
+                  onClick={() => setShowShare(true)}
+                  disabled={groceryItems.length === 0}
+                >
                   <i className="fas fa-share-alt me-2"></i>
                   Share List
                 </Button>

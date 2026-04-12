@@ -61,7 +61,7 @@ const generateMealPlan = async (user, duration = 7, preferences = {}) => {
       currentDate.setDate(startDate.getDate() + i);
 
       // Select recipes based on available count
-      const numMeals = Math.min(4, matchingRecipes.length);
+      const numMeals = Math.min(3, matchingRecipes.length);
       const selectedRecipes = getRandomRecipes(matchingRecipes, numMeals);
 
       // Create meal structure
@@ -69,14 +69,14 @@ const generateMealPlan = async (user, duration = 7, preferences = {}) => {
         breakfast: [],
         lunch: [],
         dinner: [],
-        snacks: [],
+
       };
 
       // Assign recipes to meals
       if (selectedRecipes[0]) meals.breakfast = [{ recipe: selectedRecipes[0]._id }];
       if (selectedRecipes[1]) meals.lunch = [{ recipe: selectedRecipes[1]._id }];
       if (selectedRecipes[2]) meals.dinner = [{ recipe: selectedRecipes[2]._id }];
-      if (selectedRecipes[3]) meals.snacks = [{ recipe: selectedRecipes[3]._id }];
+
 
       const dailyNutrition = calculateDailyNutrition(selectedRecipes);
 
@@ -95,9 +95,8 @@ const generateMealPlan = async (user, duration = 7, preferences = {}) => {
     const nutritionSummary = calculateNutritionSummary(days);
 
     return {
-      title: `${duration}-Day ${
-        userProfile.dietaryPreference ? userProfile.dietaryPreference + " " : ""
-      }Meal Plan`,
+      title: `${duration}-Day ${userProfile.dietaryPreference ? userProfile.dietaryPreference + " " : ""
+        }Meal Plan`,
       duration,
       preferences: preferences,
       days,

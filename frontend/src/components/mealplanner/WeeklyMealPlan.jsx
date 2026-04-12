@@ -40,7 +40,7 @@ const WeeklyMealPlan = ({ mealPlan }) => {
     { key: "breakfast", name: "Breakfast", icon: "☕" },
     { key: "lunch", name: "Lunch", icon: "🥗" },
     { key: "dinner", name: "Dinner", icon: "🍽️" },
-    { key: "snacks", name: "Snacks", icon: "🍎" },
+
   ];
 
   const getDayName = (dateString) => {
@@ -108,7 +108,7 @@ const WeeklyMealPlan = ({ mealPlan }) => {
     };
 
     // Sum nutrition from all meals in the day
-    const mealTypes = ['breakfast', 'lunch', 'dinner', 'snacks'];
+    const mealTypes = ['breakfast', 'lunch', 'dinner'];
     mealTypes.forEach(mealType => {
       const meals = day.meals[mealType] || [];
       meals.forEach(meal => {
@@ -239,7 +239,7 @@ const WeeklyMealPlan = ({ mealPlan }) => {
                     <Card.Body>
                       <h5 className="mb-3">{mealType.name} Recipes</h5>
                       {mealPlan.days[activeDay]?.meals[mealType.key]?.length >
-                      0 ? (
+                        0 ? (
                         <Row>
                           {mealPlan.days[activeDay].meals[mealType.key].map(
                             (meal, mealIndex) => (
@@ -318,7 +318,7 @@ const WeeklyMealPlan = ({ mealPlan }) => {
                             (nutrition.totalCalories /
                               (mealPlan.nutritionSummary
                                 ?.averageDailyCalories || 1)) *
-                              100
+                            100
                           )}
                           %
                         </div>

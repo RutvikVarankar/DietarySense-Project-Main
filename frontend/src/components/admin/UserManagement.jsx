@@ -22,7 +22,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState([]);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [showUserDetailsModal, setShowUserDetailsModal] = useState(false);
@@ -62,21 +62,9 @@ const UserManagement = () => {
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleUserSelect = (userId) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
-  };
 
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedUsers(filteredUsers.map((user) => user._id));
-    } else {
-      setSelectedUsers([]);
-    }
-  };
+
+
 
   const handleDeleteUser = (user) => {
     setUserToDelete(user);
@@ -279,16 +267,7 @@ const UserManagement = () => {
             <Table hover className="mb-0">
               <thead className="bg-light">
                 <tr>
-                  <th>
-                    <Form.Check
-                      type="checkbox"
-                      onChange={handleSelectAll}
-                      checked={
-                        selectedUsers.length === filteredUsers.length &&
-                        filteredUsers.length > 0
-                      }
-                    />
-                  </th>
+
                   <th>User</th>
                   <th>Dietary Preference</th>
                   <th>Goal</th>
@@ -300,13 +279,7 @@ const UserManagement = () => {
               <tbody>
                 {filteredUsers.map((user) => (
                   <tr key={user._id}>
-                    <td>
-                      <Form.Check
-                        type="checkbox"
-                        checked={selectedUsers.includes(user._id)}
-                        onChange={() => handleUserSelect(user._id)}
-                      />
-                    </td>
+
                     <td>
                       <div>
                         <div className="fw-medium">{user.name}</div>
@@ -343,9 +316,7 @@ const UserManagement = () => {
                     </td>
                     <td>
                       <div className="d-flex gap-1">
-                        <Button variant="outline-primary" size="sm">
-                          <i className="fas fa-edit"></i>
-                        </Button>
+
                         <Button
                           variant="outline-info"
                           size="sm"

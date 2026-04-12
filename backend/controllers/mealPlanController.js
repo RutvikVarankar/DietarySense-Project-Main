@@ -41,7 +41,7 @@ exports.generateMealPlan = async (req, res, next) => {
 
     // Populate recipe data before returning
     const populatedMealPlan = await MealPlan.findById(mealPlan._id).populate(
-      "days.meals.breakfast.recipe days.meals.lunch.recipe days.meals.dinner.recipe days.meals.snacks.recipe"
+      "days.meals.breakfast.recipe days.meals.lunch.recipe days.meals.dinner.recipe"
     );
 
     res.status(201).json({
@@ -87,7 +87,7 @@ exports.getUserMealPlans = async (req, res, next) => {
 exports.getMealPlan = async (req, res, next) => {
   try {
     const mealPlan = await MealPlan.findById(req.params.id).populate(
-      "days.meals.breakfast days.meals.lunch days.meals.dinner days.meals.snacks"
+      "days.meals.breakfast days.meals.lunch days.meals.dinner"
     );
 
     if (!mealPlan) {
@@ -148,7 +148,7 @@ exports.updateMealPlan = async (req, res, next) => {
       new: true,
       runValidators: true,
     }).populate(
-      "days.meals.breakfast days.meals.lunch days.meals.dinner days.meals.snacks"
+      "days.meals.breakfast days.meals.lunch days.meals.dinner"
     );
 
     res.status(200).json({
@@ -200,7 +200,7 @@ exports.deleteMealPlan = async (req, res, next) => {
 exports.getGroceryList = async (req, res, next) => {
   try {
     const mealPlan = await MealPlan.findById(req.params.id).populate(
-      "days.meals.breakfast days.meals.lunch days.meals.dinner days.meals.snacks"
+      "days.meals.breakfast days.meals.lunch days.meals.dinner"
     );
 
     if (!mealPlan) {
@@ -235,7 +235,7 @@ const generateGroceryListFromMealPlan = (mealPlan) => {
   const ingredientsMap = new Map();
 
   mealPlan.days.forEach((day) => {
-    const meals = ["breakfast", "lunch", "dinner", "snacks"];
+    const meals = ["breakfast", "lunch", "dinner"];
 
     meals.forEach((mealType) => {
       const meal = day.meals[mealType];

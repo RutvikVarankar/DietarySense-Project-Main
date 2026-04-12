@@ -177,40 +177,7 @@ const mealPlanSchema = mongoose.Schema(
               },
             },
           ],
-          snacks: [
-            {
-              recipe: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Recipe",
-              },
-              scheduledTime: {
-                type: String,
-                match: [
-                  /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
-                  "Please use HH:MM format",
-                ],
-              },
-              consumed: {
-                type: Boolean,
-                default: false,
-              },
-              feedback: {
-                rating: {
-                  type: Number,
-                  min: [1, "Rating must be at least 1"],
-                  max: [5, "Rating cannot be more than 5"],
-                },
-                comment: {
-                  type: String,
-                  trim: true,
-                  maxlength: [
-                    500,
-                    "Comment cannot be more than 500 characters",
-                  ],
-                },
-              },
-            },
-          ],
+
         },
         nutrition: {
           totalCalories: {
@@ -325,8 +292,7 @@ mealPlanSchema.virtual("progress").get(function () {
       total +
       (day.meals.breakfast?.length || 0) +
       (day.meals.lunch?.length || 0) +
-      (day.meals.dinner?.length || 0) +
-      (day.meals.snacks?.length || 0)
+      (day.meals.dinner?.length || 0)
     );
   }, 0);
 
@@ -337,15 +303,11 @@ mealPlanSchema.virtual("progress").get(function () {
       day.meals.lunch?.filter((m) => m.consumed).length || 0;
     const dinnerConsumed =
       day.meals.dinner?.filter((m) => m.consumed).length || 0;
-    const snacksConsumed =
-      day.meals.snacks?.filter((m) => m.consumed).length || 0;
-
     return (
       total +
       breakfastConsumed +
       lunchConsumed +
-      dinnerConsumed +
-      snacksConsumed
+      dinnerConsumed
     );
   }, 0);
 
@@ -395,8 +357,7 @@ mealPlanSchema.pre("save", function (next) {
       total +
       (day.meals.breakfast?.length || 0) +
       (day.meals.lunch?.length || 0) +
-      (day.meals.dinner?.length || 0) +
-      (day.meals.snacks?.length || 0)
+      (day.meals.dinner?.length || 0)
     );
   }, 0);
 
@@ -407,15 +368,11 @@ mealPlanSchema.pre("save", function (next) {
       day.meals.lunch?.filter((m) => m.consumed).length || 0;
     const dinnerConsumed =
       day.meals.dinner?.filter((m) => m.consumed).length || 0;
-    const snacksConsumed =
-      day.meals.snacks?.filter((m) => m.consumed).length || 0;
-
     return (
       total +
       breakfastConsumed +
       lunchConsumed +
-      dinnerConsumed +
-      snacksConsumed
+      dinnerConsumed
     );
   }, 0);
 
