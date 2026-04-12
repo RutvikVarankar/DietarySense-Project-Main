@@ -14,6 +14,7 @@ import {
   Tabs,
   Tab,
 } from "react-bootstrap";
+import recipeService from "../../services/recipeService.js";
 
 const RecipeManagement = () => {
   const [recipes, setRecipes] = useState([]);
@@ -30,6 +31,7 @@ const RecipeManagement = () => {
   const [newRecipe, setNewRecipe] = useState({
     title: "",
     description: "",
+    videoLink: "",
     ingredients: [{ name: "", quantity: 0, unit: "", category: "" }],
     instructions: [{ step: 1, text: "", duration: 0 }],
     nutrition: {
@@ -52,6 +54,7 @@ const RecipeManagement = () => {
   });
   const [addRecipeLoading, setAddRecipeLoading] = useState(false);
   const [addRecipeError, setAddRecipeError] = useState("");
+  const [actionError, setActionError] = useState("");
 
 
   useEffect(() => {
@@ -60,21 +63,15 @@ const RecipeManagement = () => {
 
   const fetchRecipes = async () => {
     setLoading(true);
+    setError("");
     try {
-      const response = await fetch("http://localhost:5000/api/admin/recipes", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch recipes");
-      }
-
-      const data = await response.json();
-      setRecipes(data.data);
+      const params = {};
+      if (searchTerm) params.search = searchTerm;
+      if (statusFilter !== "all") params.status = statusFilter;
+      const data = await recipeService.adminGetRecipes(params);
+      setRecipes(data.data || data);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to fetch recipes");
     } finally {
       setLoading(false);
     }
@@ -102,64 +99,46 @@ const RecipeManagement = () => {
   };
 
   const confirmRecipeAction = async () => {
+    setActionError("");
     if (!recipeToAction) return;
 
     try {
-      let endpoint = "";
-      let method = "PUT";
-      let body = null;
-
+      let res;
       switch (modalAction) {
         case "approve":
-          endpoint = `approve`;
+          res = await recipeService.adminApproveRecipe(recipeToAction._id);
           break;
         case "reject":
-          endpoint = `reject`;
-          body = JSON.stringify({ reason: rejectionReason });
+          res = await recipeService.adminRejectRecipe(recipeToAction._id, rejectionReason);
           break;
         case "delete":
-          endpoint = "";
-          method = "DELETE";
+          await fetch(`http://localhost:5000/api/admin/recipes/${recipeToAction._id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          });
+          setRecipes((prev) => prev.filter((r) => r._id !== recipeToAction._id));
           break;
         default:
           return;
       }
 
-      let url = `http://localhost:5000/api/admin/recipes/${recipeToAction._id}`;
-      if (endpoint) {
-        url += `/${endpoint}`;
-      }
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        ...(body && { body }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to ${modalAction} recipe`);
-      }
-
-      // Update local state
-      if (modalAction === "delete") {
-        setRecipes((prev) => prev.filter((r) => r._id !== recipeToAction._id));
-      } else {
-        const updatedRecipe = await response.json();
+      if (modalAction !== "delete") {
         setRecipes((prev) =>
-          prev.map((r) =>
-            r._id === recipeToAction._id ? updatedRecipe.data : r
-          )
+          prev.map((r) => r._id === recipeToAction._id ? res.data : r)
         );
+        if (modalAction === "approve") {
+          alert("✅ Recipe approved successfully! It is now visible in the public recipe section as a card.");
+        }
       }
 
       setShowActionModal(false);
       setRecipeToAction(null);
       setRejectionReason("");
     } catch (err) {
-      setError(err.message);
+      console.error("Recipe action error:", err);
+      setActionError(err.response?.data?.message || err.message || `Failed to ${modalAction} recipe. Check console.`);
     }
   };
 
@@ -335,6 +314,7 @@ const RecipeManagement = () => {
       setNewRecipe({
         title: "",
         description: "",
+        youtubeLink: "",
         ingredients: [{ name: "", quantity: 0, unit: "", category: "" }],
         instructions: [{ step: 1, text: "", duration: 0 }],
         nutrition: {
@@ -610,6 +590,12 @@ const RecipeManagement = () => {
                   `Are you sure you want to permanently delete "${recipeToAction.title}"?`}
               </p>
 
+              {actionError && (
+                <Alert variant="danger" className="mb-3">
+                  {actionError}
+                </Alert>
+              )}
+
               {modalAction === "reject" && (
                 <Form.Group className="mt-3">
                   <Form.Label>Rejection Reason</Form.Label>
@@ -678,7 +664,7 @@ const RecipeManagement = () => {
             {/* Basic Information */}
             <h5 className="mb-3">Basic Information</h5>
             <Row className="mb-3">
-              <Col md={8}>
+              <Col md={6}>
                 <Form.Group>
                   <Form.Label>Title *</Form.Label>
                   <Form.Control
@@ -691,7 +677,7 @@ const RecipeManagement = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col md={3}>
                 <Form.Group>
                   <Form.Label>Difficulty *</Form.Label>
                   <Form.Select
@@ -707,6 +693,28 @@ const RecipeManagement = () => {
                     <option value="easy">Easy</option>
                     <option value="medium">Medium</option>
                     <option value="hard">Hard</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group>
+                  <Form.Label>Cuisine</Form.Label>
+                  <Form.Select
+                    value={newRecipe.cuisine}
+                    onChange={(e) =>
+                      setNewRecipe((prev) => ({
+                        ...prev,
+                        cuisine: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="">Select Cuisine</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Mexican">Mexican</option>
+                    <option value="Asian">Asian</option>
+                    <option value="Indian">Indian</option>
+                    <option value="Mediterranean">Mediterranean</option>
+                    <option value="American">American</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -730,24 +738,18 @@ const RecipeManagement = () => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Cuisine</Form.Label>
-                  <Form.Select
-                    value={newRecipe.cuisine}
+                  <Form.Label>YouTube Link</Form.Label>
+                  <Form.Control
+                    type="url"
+                    placeholder="https://youtube.com/watch?v=..."
+                    value={newRecipe.videoLink}
                     onChange={(e) =>
                       setNewRecipe((prev) => ({
                         ...prev,
-                        cuisine: e.target.value,
+                        videoLink: e.target.value
                       }))
                     }
-                  >
-                    <option value="">Select Cuisine</option>
-                    <option value="Italian">Italian</option>
-                    <option value="Mexican">Mexican</option>
-                    <option value="Asian">Asian</option>
-                    <option value="Indian">Indian</option>
-                    <option value="Mediterranean">Mediterranean</option>
-                    <option value="American">American</option>
-                  </Form.Select>
+                  />
                 </Form.Group>
               </Col>
               <Col md={6}>

@@ -160,6 +160,10 @@ const recipeSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
+    videoLink: {
+      type: String,
+      trim: true,
+    },
     image: {
       type: String,
       validate: {
@@ -170,6 +174,7 @@ const recipeSchema = mongoose.Schema(
         message: "Please provide a valid image URL",
       },
     },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

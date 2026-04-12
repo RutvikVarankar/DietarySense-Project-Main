@@ -95,6 +95,23 @@ export const recipeService = {
     return response.data;
   },
 
+  // Admin endpoints
+  adminGetRecipes: async (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const response = await apiService.get(`/admin/recipes?${query}`);
+    return response.data;
+  },
+
+  adminApproveRecipe: async (id) => {
+    const response = await apiService.put(`/admin/recipes/${id}/approve`);
+    return response.data;
+  },
+
+  adminRejectRecipe: async (id, reason) => {
+    const response = await apiService.put(`/admin/recipes/${id}/reject`, { reason });
+    return response.data;
+  },
+
   // Add to favorites
   addToFavorites: async (recipeId) => {
     const response = await apiService.post(

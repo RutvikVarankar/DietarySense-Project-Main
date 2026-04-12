@@ -329,20 +329,23 @@ const RecipeCard = ({ recipe }) => {
         </div>
 
         {/* YouTube Video Section */}
-        {recipe.videoLink && (
+        {(recipe.youtubeLink || recipe.videoLink) && (
           <div className="mb-3">
-            <a
-              href={recipe.videoLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-outline-danger w-100 text-start"
-              style={{ textDecoration: 'none' }}
+            <Button
+              variant="outline-danger"
+              size="m"
+              className="w-100 text-center d-flex align-items-center justify-content-center"
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(recipe.youtubeLink || recipe.videoLink, '_blank');
+              }}
             >
               <i className="fab fa-youtube me-2"></i>
-              Watch on YouTube
-            </a>
+              Watch Video
+            </Button>
           </div>
         )}
+
 
         {/* Rating and Actions */}
         <div className="d-flex justify-content-between align-items-center mt-auto">

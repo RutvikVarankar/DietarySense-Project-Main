@@ -547,7 +547,7 @@ const RecipeDetail = () => {
           </Card>
 
           {/* Video Tutorial */}
-          {recipe.videoLink && (
+{(recipe.youtubeLink || recipe.videoLink) && (
             <Card className="border-0 shadow-sm mb-4">
               <Card.Header className="bg-danger text-white">
                 <h6 className="mb-0">
@@ -558,7 +558,7 @@ const RecipeDetail = () => {
               <Card.Body className="p-0">
                 <div className="ratio ratio-16x9">
                   <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeId(recipe.videoLink)}`}
+                    src={`https://www.youtube.com/embed/${getYouTubeId(recipe.youtubeLink || recipe.videoLink)}`}
                     title="Recipe Video Tutorial"
                     allowFullScreen
                   ></iframe>
@@ -566,6 +566,7 @@ const RecipeDetail = () => {
               </Card.Body>
             </Card>
           )}
+
         </Col>
       </Row>
     </Container>

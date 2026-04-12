@@ -115,18 +115,26 @@ exports.getRecipe = async (req, res, next) => {
 // @access  Private
 exports.createRecipe = async (req, res, next) => {
   try {
-    // Parse JSON strings from FormData + convert numbers
-    if (req.body.ingredients) req.body.ingredients = JSON.parse(req.body.ingredients);
-    if (req.body.instructions) req.body.instructions = JSON.parse(req.body.instructions);
-    if (req.body.nutrition) {
+    // For JSON request, body is already parsed object
+    if (req.body.ingredients && typeof req.body.ingredients === 'string') {
+      req.body.ingredients = JSON.parse(req.body.ingredients);
+    }
+    if (req.body.instructions && typeof req.body.instructions === 'string') {
+      req.body.instructions = JSON.parse(req.body.instructions);
+    }
+    if (req.body.nutrition && typeof req.body.nutrition === 'string') {
       req.body.nutrition = JSON.parse(req.body.nutrition);
       // Convert nutrition to numbers
       Object.keys(req.body.nutrition).forEach(key => {
         req.body.nutrition[key] = parseFloat(req.body.nutrition[key]) || 0;
       });
     }
-    if (req.body.dietaryTags) req.body.dietaryTags = JSON.parse(req.body.dietaryTags);
-    if (req.body.tags) req.body.tags = JSON.parse(req.body.tags);
+    if (req.body.dietaryTags && typeof req.body.dietaryTags === 'string') {
+      req.body.dietaryTags = JSON.parse(req.body.dietaryTags);
+    }
+    if (req.body.tags && typeof req.body.tags === 'string') {
+      req.body.tags = JSON.parse(req.body.tags);
+    }
 
     // Convert numeric FormData fields (strings → numbers)
     const numericFields = ['prepTime', 'cookTime', 'servings'];
@@ -163,7 +171,7 @@ exports.createRecipe = async (req, res, next) => {
 
     // Add createdBy field
     req.body.createdBy = req.user.id;
-    req.body.isApproved = req.body.isApproved === "true" || req.user.role === "admin";
+    req.body.isApproved = false; // Always pending for non-admin, admin can approve later
 
 
     // Calculate nutrition if not provided
