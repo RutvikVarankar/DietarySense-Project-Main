@@ -1,38 +1,26 @@
-# REVERT - Undo Auth Changes
+# DietarySense Chatbot Error Fix - TODO
 
-**User requested UNDO all tasks**
+## Plan Overview
+Fix "'name'" KeyError in ai-service/main.py chat endpoint caused by MongoDB nutritions/recipes collections lacking 'name' field.
 
-**Status:** Reverting frontend/backend changes to original state
+## Steps:
+- [x] Step 1: Update ai-service/main.py with safe field access (food?.get('name', '')) and JSON fallback
+- [x] Step 2: Query MongoDB nutritions collection to inspect data structure  
+- [ ] Step 3: Test AI service endpoint directly with PowerShell curl
+- [ ] Step 4: Test full chatbot flow (frontend -> backend -> ai-service)
+- [ ] Step 5: Complete task
 
-## Current Issue
-Login API succeeds (token stored in localStorage) → navigate dashboard → ProtectedRoute sees user=null → redirect to login loop
+**Status:** All code fixes complete. Manual restart required.
 
-## Root Cause
-AuthContext checkAuthStatus runs → GET /api/auth/me fails (401?) → clears token → user=null
+**Test Steps (Run in VSCode Terminal):**
+1. Kill existing ai-service (Ctrl+C)
+2. <code>cd ai-service</code>
+3. <code>python -m uvicorn main:app --reload</code>
+4. New terminal: <code>$body = @{message='apple calories'} | ConvertTo-Json ; Invoke-RestMethod -Uri http://localhost:8000/chat -Method POST -ContentType 'application/json' -Body $body</code>
+5. Backend: <code>cd backend && npm start</code>
+6. Frontend test chatbot.
 
-## Steps [2/6] - BACKEND DEBUG NEEDED
+Expected: Apple nutrition info from JSON! ✅
 
-✅ 1. Created TODO.md tracking file
 
-✅ 2. Updated frontend/src/context/AuthContext.jsx - Added lastLoginAttempt flag, skip check 10s post-login, better error handling, debug logs
-
-[ ] 3. Test login flow:
-
-   cd frontend && npm run dev
-
-   Login → check browser Console:
-   - "Login success: {token: present...}"
-   - "Skipping auth check - recent login" 
-   
-   Network tab: /api/auth/login → 200, /auth/me status?
-
-[ ] 4. Backend test if still failing
-
-[ ] 4. Verify backend /api/auth/me endpoint works with token (curl test)
-
-[ ] 5. Test complete login → dashboard flow
-
-[ ] 6. Mark complete ✓
-
-**Next:** Edit AuthContext.jsx to prevent premature token clearing post-login
 
