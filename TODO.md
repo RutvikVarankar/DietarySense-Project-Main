@@ -1,13 +1,38 @@
-# DietarySense Project TODO
+# REVERT - Undo Auth Changes
 
-## Grocery List Share Options Enhancement
-✅ Step 1: Create new `frontend/src/components/grocery/ShareOptions.jsx` - modal component with social share buttons (WhatsApp, Facebook, Twitter, Instagram alternatives, Email, SMS, Copy, Web Share API).
-✅ Step 2: Update `frontend/src/components/grocery/GroceryList.jsx` - add `showShare` state, handler for Share List button to open modal, conditional render `<ShareOptions />`.
-- [ ] Step 3: Test functionality - generate dev server if needed, verify share links open correctly, preview text, empty list handling.
-- [ ] Step 4: Mark complete, attempt_completion.
+**User requested UNDO all tasks**
 
-## Previous Tasks (if any)
-*(auto-generated placeholder)*
+**Status:** Reverting frontend/backend changes to original state
 
-Last updated by BLACKBOXAI
+## Current Issue
+Login API succeeds (token stored in localStorage) → navigate dashboard → ProtectedRoute sees user=null → redirect to login loop
+
+## Root Cause
+AuthContext checkAuthStatus runs → GET /api/auth/me fails (401?) → clears token → user=null
+
+## Steps [2/6] - BACKEND DEBUG NEEDED
+
+✅ 1. Created TODO.md tracking file
+
+✅ 2. Updated frontend/src/context/AuthContext.jsx - Added lastLoginAttempt flag, skip check 10s post-login, better error handling, debug logs
+
+[ ] 3. Test login flow:
+
+   cd frontend && npm run dev
+
+   Login → check browser Console:
+   - "Login success: {token: present...}"
+   - "Skipping auth check - recent login" 
+   
+   Network tab: /api/auth/login → 200, /auth/me status?
+
+[ ] 4. Backend test if still failing
+
+[ ] 4. Verify backend /api/auth/me endpoint works with token (curl test)
+
+[ ] 5. Test complete login → dashboard flow
+
+[ ] 6. Mark complete ✓
+
+**Next:** Edit AuthContext.jsx to prevent premature token clearing post-login
 

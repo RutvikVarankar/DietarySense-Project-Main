@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import json
-import os
+from pymongo import MongoClient
 import random
 import logging
 import re
@@ -14,23 +13,19 @@ app = FastAPI(title="Dietary Assistant API")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-DATA_DIR = "data"
-
 # ---------------------------------------
-# Load JSON Files
+# MongoDB Connection
 # ---------------------------------------
 try:
-    with open(os.path.join(DATA_DIR, "nutrition_facts.json")) as f:
-        NUTRITION_FACTS = json.load(f)
+    client = MongoClient("mongodb+srv://rutvikvarankar06_db_user:Admin123@cluster0.pjeotvx.mongodb.net/DietarySense?retryWrites=true&w=majority")
+    db = client["DietarySense"]
 
-    with open(os.path.join(DATA_DIR, "sample_recipes.json")) as f:
-        SAMPLE_RECIPES = json.load(f)
-
-    with open(os.path.join(DATA_DIR, "tips.json")) as f:
-        TIPS = json.load(f)
+    nutrition_collection = db["nutritions"]
+    recipes_collection = db["recipes"]
+    tips_collection = db["tips"]
 
 except Exception as e:
-    logger.error("Error loading JSON files: %s", str(e))
+    logger.error("MongoDB connection error: %s", str(e))
     raise e
 
 
@@ -46,12 +41,11 @@ class ChatRequest(BaseModel):
 # ---------------------------------------
 
 def detect_food(message):
-    """Detect food item mentioned in user message"""
+    """Detect food item from MongoDB"""
+    foods = nutrition_collection.find()
 
-    for food in NUTRITION_FACTS:
-
-        clean_name = food.replace(" nutrients", "")
-        clean_name = clean_name.replace("_", " ")
+    for food in foods:
+        clean_name = food["name"].lower()
 
         if clean_name in message:
             return food
@@ -61,19 +55,16 @@ def detect_food(message):
 
 def detect_recipe(message):
     """Detect recipe using name or ingredient"""
+    recipes = recipes_collection.find()
 
-    for recipe in SAMPLE_RECIPES:
-
-        recipe_name = recipe["name"].lower().replace(" recipe", "")
+    for recipe in recipes:
+        recipe_name = recipe["name"].lower()
 
         if recipe_name in message:
             return recipe
 
         for ing in recipe["ingredients"]:
-
-            ingredient_name = ing.replace("_", " ")
-
-            if ingredient_name in message:
+            if ing.lower() in message:
                 return recipe
 
     return None
@@ -81,36 +72,31 @@ def detect_recipe(message):
 
 def format_nutrition(food):
 
-    fact = NUTRITION_FACTS[food]
-
-    food_name = food.replace(" nutrients", "")
-    food_name = food_name.replace("_", " ").title()
-
     return f"""
-🥗 **{food_name} Nutrition Information**
+🥗 **{food['name'].title()} Nutrition Information**
 
-Calories: {fact['calories']} kcal  
-Protein: {fact['protein']} g  
-Carbohydrates: {fact['carbs']} g  
-Fat: {fact['fat']} g  
-Serving Size: {fact['serving']}
+Calories: {food['calories']} kcal  
+Protein: {food['protein']} g  
+Carbohydrates: {food['carbs']} g  
+Fat: {food['fat']} g  
+Serving Size: {food['serving']}
 """
 
 
 def format_recipe(recipe):
 
     ingredients = "\n".join(
-        [f"{i+1}. {ing.replace('_',' ').title()}" for i, ing in enumerate(recipe["ingredients"])]
+        [f"{i+1}. {ing.title()}" for i, ing in enumerate(recipe["ingredients"])]
     )
 
-    steps = recipe["instructions"].split(". ")
+    steps = recipe["instructions"]
 
     instructions = "\n".join(
-        [f"{i+1}. {step.strip()}" for i, step in enumerate(steps) if step]
+        [f"{i+1}. {step}" for i, step in enumerate(steps)]
     )
 
     nutrition = "\n".join(
-        [f"• {n}" for n in recipe["nutrition"].split(", ")]
+        [f"• {n}" for n in recipe["nutrition"]]
     )
 
     return f"""
@@ -134,7 +120,7 @@ Enjoy your healthy meal!
 # ---------------------------------------
 @app.get("/")
 def home():
-    return {"message": "Dietary Assistant API is running"}
+    return {"message": "Dietary Assistant API is running with MongoDB"}
 
 
 # ---------------------------------------
@@ -146,7 +132,6 @@ def chat(request: ChatRequest):
     try:
 
         message = request.message.lower().strip()
-
         logger.info(f"User message: {message}")
 
         # --------------------------------
@@ -164,14 +149,16 @@ def chat(request: ChatRequest):
         # --------------------------------
         # Recipe Queries
         # --------------------------------
-        if "recipe" in message or "cook" in message or "make" in message:
+        if any(w in message for w in ["recipe", "cook", "make"]):
 
             recipe = detect_recipe(message)
 
             if recipe:
                 return {"reply": format_recipe(recipe)}
 
-            recipe = random.choice(SAMPLE_RECIPES)
+            # Random recipe from MongoDB
+            random_recipe = recipes_collection.aggregate([{"$sample": {"size": 1}}])
+            recipe = list(random_recipe)[0]
 
             return {
                 "reply": f"I couldn't find an exact match. Try this recipe:\n{format_recipe(recipe)}"
@@ -190,9 +177,10 @@ def chat(request: ChatRequest):
         # --------------------------------
         if any(w in message for w in ["tip", "advice", "diet", "health"]):
 
-            tip = random.choice(TIPS)
+            tip = tips_collection.aggregate([{"$sample": {"size": 1}}])
+            tip_text = list(tip)[0]["text"]
 
-            return {"reply": f"💡 Healthy Tip: {tip}"}
+            return {"reply": f"💡 Healthy Tip: {tip_text}"}
 
         # --------------------------------
         # Greetings
@@ -229,7 +217,6 @@ Examples:
     except Exception as e:
 
         logger.error("Chat error: %s", str(e))
-
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
