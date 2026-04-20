@@ -49,34 +49,4 @@ exports.analyzeNutrition = async (req, res, next) => {
   }
 };
 
-// Chat with AI assistant
-exports.chatWithAI = async (req, res, next) => {
-  try {
-    const { message, context } = req.body;
 
-    console.log(`[AI Service] Sending chat request to ${AI_SERVICE_URL}/chat`);
-    console.log(`[AI Service] Message: ${message}`);
-
-    const response = await axios.post(`${AI_SERVICE_URL}/chat`, {
-      message,
-      context
-    }, { timeout: 30000 });
-
-    console.log(`[AI Service] Response received:`, response.data);
-
-    res.status(200).json({
-      success: true,
-      data: response.data
-    });
-  } catch (error) {
-    console.error(`[AI Service Error] Status:`, error.response?.status);
-    console.error(`[AI Service Error] Message:`, error.message);
-    console.error(`[AI Service Error] Data:`, error.response?.data);
-    
-    res.status(500).json({
-      success: false,
-      message: error.response?.data?.detail || 'Failed to get response from AI chat service',
-      error: error.message
-    });
-  }
-};
